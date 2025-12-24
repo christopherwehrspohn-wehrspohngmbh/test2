@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Türchen 24</title>
+
+  <!-- Roboto (Gutschein) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg1:#0b1b3a;
@@ -12,8 +18,6 @@
       --gold:#f4d37a;
       --shadow: 0 18px 50px rgba(0,0,0,.28);
       --radius: 22px;
-
-      /* dynamic fit factor (1.0 = normal, smaller = tighter) */
       --fit: 1;
     }
 
@@ -96,7 +100,8 @@
     body.state-2 .twinkles,
     body.state-3 .twinkles,
     body.state-4 .twinkles,
-    body.state-5 .twinkles{ opacity:.55; }
+    body.state-5 .twinkles,
+    body.state-6 .twinkles{ opacity:.55; }
 
     /* Door / Card */
     .doorWrap{
@@ -200,6 +205,7 @@
       opacity: .95;
     }
 
+    /* ---------- CARD FLIP ---------- */
     .card{
       position:absolute;
       left: 20px;
@@ -207,17 +213,53 @@
       top: 22px;
       bottom: 22px;
       border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
-      color: var(--ink);
       box-shadow: 0 18px 44px rgba(0,0,0,.24);
       transform: translateX(-18px) translateY(10px);
       opacity: 0;
       transition: transform 900ms cubic-bezier(.2,.9,.15,1), opacity 500ms ease;
       overflow:hidden;
+      display:block;
+      perspective: 1000px;
+      background: transparent;
+    }
+
+    .cardInner{
+      position:absolute;
+      inset:0;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: transform 900ms cubic-bezier(.2,.9,.15,1);
+      will-change: transform;
+    }
+
+    .cardFace{
+      position:absolute;
+      inset:0;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow:hidden;
       display:flex;
       flex-direction:column;
     }
 
+    .cardFront{
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+      color: var(--ink);
+    }
+
+    /* ✅ exakt dein Gutschein-CSS (integriert, unverändert) */
+    .cardBack{
+      background:#fff;
+      color:var(--ink);
+      font-family:Roboto,system-ui,sans-serif;
+      transform:rotateY(180deg);
+      position:relative;
+    }
+
+    body.state-6 .cardInner{ transform: rotateY(180deg); }
+
+    /* ---------- FRONT CONTENT ---------- */
     .cardHeader{
       padding: calc(18px * var(--fit)) calc(18px * var(--fit)) calc(14px * var(--fit));
       border-bottom: 1px solid rgba(16,33,58,.08);
@@ -334,20 +376,112 @@
     body.state-2 .door,
     body.state-3 .door,
     body.state-4 .door,
-    body.state-5 .door{ transform: rotateY(-82deg); }
+    body.state-5 .door,
+    body.state-6 .door{ transform: rotateY(-82deg); }
 
     body.state-1 .card,
     body.state-2 .card,
     body.state-3 .card,
     body.state-4 .card,
-    body.state-5 .card{ opacity:1; transform: translateX(0) translateY(0); }
+    body.state-5 .card,
+    body.state-6 .card{ opacity:1; transform: translateX(0) translateY(0); }
 
-    body.state-5 #confetti{ opacity:1; }
+    body.state-6 #confetti{ opacity:1; }
+
+    /* ---------- EXACT VOUCHER CSS FROM YOUR SNIPPET ---------- */
+    .voucherTop{
+      padding:16px 18px 12px;
+      border-bottom:1px solid rgba(16,33,58,.08);
+      display:flex;
+      justify-content:space-between;
+    }
+    .voucherKicker{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.22em;
+      opacity:.6;
+      font-weight:700;
+    }
+    .voucherTitle{
+      margin:4px 0 0;
+      font-size:22px;
+      font-weight:900;
+    }
+    .voucherSeal{
+      width:44px;height:44px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#fff,var(--gold));
+      display:grid;place-items:center;
+    }
+
+    .voucherContent{
+      padding:18px;
+      padding-bottom:80px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .voucherMainTitle{
+      font-size:24px;
+      font-weight:900;
+    }
+    .voucherText{
+      font-size:14px;
+      line-height:1.4;
+      opacity:.85;
+    }
+    .voucherIcons{
+      display:flex;
+      gap:12px;
+    }
+    .voucherIcon{
+      width:50%;
+      border-radius:16px;
+      border:1px solid rgba(16,33,58,.12);
+      padding:14px;
+      text-align:center;
+    }
+    .voucherIconTitle{
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .iconBubble{
+      width:46px;height:46px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#fff,var(--gold));
+      display:grid;place-items:center;
+      margin:0 auto;
+    }
+    .voucherFootnote{
+      text-align:center;
+      font-size:13px;
+      opacity:.8;
+    }
+    .voucherFootnote::before{
+      content:"* ";
+      font-weight:700;
+    }
+
+    .voucherFooterBar{
+      position:absolute;
+      left:0;right:0;bottom:0;
+      height:64px;
+      border-top:1px dashed rgba(16,33,58,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .voucherFooter{
+      font-size:13px;
+      font-weight:700;
+      opacity:.85;
+    }
 
     @media (prefers-reduced-motion: reduce){
-      .door, .card, .para, .signature, .badgersInline, .doorWrap::before, .twinkles { transition:none !important; animation:none !important; }
+      .door, .card, .para, .signature, .badgersInline, .doorWrap::before, .twinkles, .cardInner { transition:none !important; animation:none !important; }
       canvas{ display:none; }
       .badgersInline{ transform: translateX(0) !important; opacity:1 !important; }
+      .cardInner{ transform: none !important; }
     }
   </style>
 </head>
@@ -363,22 +497,61 @@
       <div class="frame"></div>
 
       <div class="card" id="card" aria-hidden="true">
-        <div class="cardHeader">
-          <div><h1>Frohe Weihnachten ❤️</h1></div>
-          <div class="seal">🎁</div>
-        </div>
+        <div class="cardInner" id="cardInner">
+          <!-- FRONT -->
+          <div class="cardFace cardFront" aria-label="Karte Vorderseite">
+            <div class="cardHeader">
+              <div><h1>Frohe Weihnachten ❤️</h1></div>
+              <div class="seal">🎁</div>
+            </div>
 
-        <div class="cardBody" id="cardBody">
-          <div class="textStack" id="textStack">
-            <!-- ✅ UPDATED TEXT -->
-            <p class="para" id="p1">Ich weiß, wie anstrengend dein Alltag oft ist und dass dabei Erholung manchmal einfach zu kurz kommt.</p>
-            <p class="para" id="p2">Deshalb schenke ich dir zwei Übernachtungen im Schwarzwald, damit wir gemeinsam mal rauskommen und uns eine kleine Auszeit nehmen können.</p>
-            <p class="para" id="p3">Wir können wandern gehen, die Gegend genießen und wenn wir Lust haben auch in die Therme oder in den Pool gehen und einfach entspannen.</p>
-            <p class="para" id="p4">Ohne festen Plan, ohne Druck, einfach Zeit für uns und ein Wochenende zum Abschalten.</p>
+            <div class="cardBody" id="cardBody">
+              <div class="textStack" id="textStack">
+                <p class="para" id="p1">Ich weiß, wie anstrengend dein Alltag oft ist und dass dabei Erholung manchmal einfach zu kurz kommt.</p>
+                <p class="para" id="p2">Deshalb schenke ich dir zwei Übernachtungen im Schwarzwald, damit wir gemeinsam mal rauskommen und uns eine kleine Auszeit nehmen können.</p>
+                <p class="para" id="p3">Wir können wandern gehen, die Gegend genießen und wenn wir Lust haben auch in die Therme oder in den Pool gehen und einfach entspannen.</p>
+                <p class="para" id="p4">Einfach Zeit für uns und ein Wochenende zum Abschalten.</p>
 
-            <div class="signature" id="sig">
-              <span class="sigText">Dein Chrislibär</span>
-              <span class="badgersInline" aria-hidden="true">🦡🦡</span>
+                <div class="signature" id="sig">
+                  <span class="sigText">Dein Chrislibär</span>
+                  <span class="badgersInline" aria-hidden="true">🦡🦡</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BACK (GUTSCHEIN) ✅ exakt dein HTML-Snippet -->
+          <div class="cardFace cardBack" aria-label="Gutschein Rückseite">
+            <div class="voucherTop">
+              <div>
+                <p class="voucherKicker">GUTSCHEIN</p>
+                <div class="voucherTitle">Schwarzwald Auszeit</div>
+              </div>
+              <div class="voucherSeal">🎁</div>
+            </div>
+
+            <div class="voucherContent">
+              <div class="voucherMainTitle">2 Übernachtungen</div>
+              <div class="voucherText">
+                Ein Wochenende im Schwarzwald zum Abschalten, du kannst dir den Ort und das Datum aussuchen.
+              </div>
+
+              <div class="voucherIcons">
+                <div class="voucherIcon">
+                  <div class="voucherIconTitle">Schwarzwald</div>
+                  <div class="iconBubble">🌲</div>
+                </div>
+                <div class="voucherIcon">
+                  <div class="voucherIconTitle">Entspannung</div>
+                  <div class="iconBubble">🧘</div>
+                </div>
+              </div>
+
+              <div class="voucherFootnote">inkl. Thermenbesuch</div>
+            </div>
+
+            <div class="voucherFooterBar">
+              <div class="voucherFooter">gültig bis 31.12.2026</div>
             </div>
           </div>
         </div>
@@ -396,6 +569,10 @@
 
   <script>
     // ---------- state machine ----------
+    // 0 = closed
+    // 1 = open (card visible)
+    // 2..5 = reveal paragraphs
+    // 6 = flip to voucher + confetti
     let state = 0;
 
     const hint = document.getElementById('hint');
@@ -418,6 +595,7 @@
         'Tippe weiter.',
         'Tippe weiter.',
         'Tippe weiter.',
+        'Noch ein Tipp.',
         'Fertig 🎉 (Tippe, um neu zu starten.)'
       ];
       hint.innerHTML = h[state] || h[0];
@@ -431,7 +609,7 @@
       sig.classList.toggle('show', state >= 5);
     }
 
-    // ✅ Dynamic fit: shrink typography/spacings until everything fits
+    // Dynamic fit for front
     function fitCardText(){
       if (state === 0) return;
 
@@ -458,13 +636,10 @@
       setHint();
       card.setAttribute('aria-hidden', state === 0 ? 'true' : 'false');
 
-      // reset badger animation when leaving state 5
       sig.classList.remove('runBadgers');
+      if (state === 5) requestAnimationFrame(() => sig.classList.add('runBadgers'));
 
-      if (state === 5) {
-        startConfettiBurst();
-        requestAnimationFrame(() => sig.classList.add('runBadgers'));
-      }
+      if (state === 6) startConfettiBurst();
 
       applyTextVisibility();
       fitCardText();
@@ -477,11 +652,10 @@
 
     function next(){
       tapBounce();
-      if (state < 5) setState(state + 1);
+      if (state < 6) setState(state + 1);
       else setState(0);
     }
     tapArea.addEventListener('click', next);
-
     window.addEventListener('resize', () => fitCardText(), {passive:true});
 
     // ---------- snow ----------
