@@ -12,6 +12,9 @@
       --gold:#f4d37a;
       --shadow: 0 18px 50px rgba(0,0,0,.28);
       --radius: 22px;
+
+      /* dynamic fit factor (1.0 = normal, smaller = tighter) */
+      --fit: 1;
     }
 
     *{ box-sizing:border-box; }
@@ -70,7 +73,32 @@
     }
     .hint b{ color: var(--gold); font-weight:700; }
 
-    /* Door / Card (compact layout) */
+    /* ✨ Twinkles */
+    .twinkles{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.25;
+      transition: opacity 400ms ease;
+      background:
+        radial-gradient(2px 2px at 22% 30%, rgba(255,255,255,.9), transparent 60%),
+        radial-gradient(2px 2px at 70% 26%, rgba(255,255,255,.8), transparent 60%),
+        radial-gradient(2px 2px at 54% 62%, rgba(255,255,255,.85), transparent 60%),
+        radial-gradient(2px 2px at 82% 58%, rgba(255,255,255,.75), transparent 60%);
+      animation: tw 2.6s ease-in-out infinite;
+      z-index: 1;
+    }
+    @keyframes tw{
+      0%,100%{ transform: translateY(0); opacity:.35; }
+      50%{ transform: translateY(-2px); opacity:.7; }
+    }
+    body.state-1 .twinkles,
+    body.state-2 .twinkles,
+    body.state-3 .twinkles,
+    body.state-4 .twinkles,
+    body.state-5 .twinkles{ opacity:.55; }
+
+    /* Door / Card */
     .doorWrap{
       width:min(340px, 88vw);
       aspect-ratio: 3 / 4;
@@ -80,7 +108,30 @@
       align-items:center;
       justify-content:center;
       z-index: 2;
+
+      transition: transform 120ms ease;
+      transform: translateZ(0);
+      will-change: transform;
     }
+
+    /* ✨ always-on glow */
+    .doorWrap::before{
+      content:"";
+      position:absolute;
+      inset:-18px;
+      border-radius: 28px;
+      background: radial-gradient(circle at 50% 35%, rgba(244,211,122,.35), transparent 60%);
+      filter: blur(10px);
+      opacity:.55;
+      z-index:-1;
+      animation: glowPulse 3.2s ease-in-out infinite;
+    }
+    @keyframes glowPulse{
+      0%,100%{ opacity:.35; transform: scale(1); }
+      50%{ opacity:.7; transform: scale(1.02); }
+    }
+
+    .doorWrap.tapPop{ transform: scale(.992) translateZ(0); }
 
     .frame{
       position:absolute;
@@ -90,6 +141,10 @@
       border: 1px solid rgba(255,255,255,.18);
       box-shadow: var(--shadow);
       overflow:hidden;
+
+      /* ❄️ frosted glass */
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .frame:before{
       content:"";
@@ -164,52 +219,58 @@
     }
 
     .cardHeader{
-      padding: 18px 18px 14px;
+      padding: calc(18px * var(--fit)) calc(18px * var(--fit)) calc(14px * var(--fit));
       border-bottom: 1px solid rgba(16,33,58,.08);
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap: 10px;
+      gap: calc(10px * var(--fit));
+      flex: 0 0 auto;
     }
     .seal{
       flex:0 0 auto;
-      width: 44px;
-      height: 44px;
+      width: calc(44px * var(--fit));
+      height: calc(44px * var(--fit));
       border-radius: 999px;
       background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
       display:grid;
       place-items:center;
       box-shadow: 0 10px 26px rgba(0,0,0,.16);
       font-weight: 900;
+      font-size: calc(16px * var(--fit));
     }
     .cardHeader h1{
       margin:0;
-      font-size: 22px;
-      line-height: 1.15;
+      font-size: calc(22px * var(--fit));
+      line-height: 1.12;
       letter-spacing: .2px;
       font-weight: 900;
     }
 
     .cardBody{
       position:relative;
-      padding: 16px 18px 18px;
-      flex:1;
+      padding: calc(16px * var(--fit)) calc(18px * var(--fit)) calc(18px * var(--fit));
+      flex: 1 1 auto;
+      min-height: 0;
       display:flex;
       flex-direction:column;
-      gap: 12px;
+      gap: calc(12px * var(--fit));
+      overflow:hidden;
     }
 
     .textStack{
       display:flex;
       flex-direction:column;
-      gap: 10px;
-      padding-top: 2px;
-      min-height: 132px;
+      gap: calc(10px * var(--fit));
+      padding-top: calc(2px * var(--fit));
+      min-height: 0;
+      flex: 1 1 auto;
     }
+
     .para{
       margin:0;
-      font-size: 14px;
-      line-height: 1.35;
+      font-size: calc(14px * var(--fit));
+      line-height: calc(1.35 * var(--fit));
       opacity: 0;
       transform: translateY(8px);
       transition: opacity 420ms ease, transform 420ms ease;
@@ -221,18 +282,19 @@
 
     /* Signature line with badgers */
     .signature{
-      margin-top: 4px;
-      font-size: 13px;
+      margin-top: calc(4px * var(--fit));
+      font-size: calc(13px * var(--fit));
       font-weight: 700;
       opacity: 0;
       transform: translateY(8px);
       transition: opacity 420ms ease, transform 420ms ease;
       display:flex;
       align-items:center;
-      gap: 8px;
+      gap: calc(8px * var(--fit));
       position: relative;
-      overflow: hidden; /* keeps the “coming from right” clean */
+      overflow: hidden;
       padding-right: 2px;
+      flex: 0 0 auto;
     }
     .signature.show{ opacity:.9; transform: translateY(0); }
 
@@ -242,19 +304,16 @@
       display:inline-flex;
       gap: 2px;
       white-space: nowrap;
-      /* start off to the right (hidden) */
       transform: translateX(140px);
       opacity: 0;
+      font-size: calc(16px * var(--fit));
     }
 
-    /* minimal movement: simple slide-in, no wobble */
     @keyframes badgersIn{
       0%   { transform: translateX(140px); opacity: 0; }
       80%  { opacity: 1; }
       100% { transform: translateX(0); opacity: 1; }
     }
-
-    /* run once when we add this class via JS */
     .signature.runBadgers .badgersInline{
       animation: badgersIn 900ms cubic-bezier(.2,.9,.2,1) forwards;
     }
@@ -286,7 +345,7 @@
     body.state-5 #confetti{ opacity:1; }
 
     @media (prefers-reduced-motion: reduce){
-      .door, .card, .para, .signature, .badgersInline { transition:none !important; animation:none !important; }
+      .door, .card, .para, .signature, .badgersInline, .doorWrap::before, .twinkles { transition:none !important; animation:none !important; }
       canvas{ display:none; }
       .badgersInline{ transform: translateX(0) !important; opacity:1 !important; }
     }
@@ -298,6 +357,7 @@
 
     <canvas id="snow"></canvas>
     <canvas id="confetti"></canvas>
+    <div class="twinkles" aria-hidden="true"></div>
 
     <div class="doorWrap" aria-label="Adventstürchen 24">
       <div class="frame"></div>
@@ -308,14 +368,14 @@
           <div class="seal">🎁</div>
         </div>
 
-        <div class="cardBody">
-          <div class="textStack">
-            <p class="para" id="p1">Ich weiß, wie anstrengend dein Job oft ist<br/>und dass dabei Entspannung schnell zu kurz kommt.</p>
-            <p class="para" id="p2">Deshalb schenke ich dir<br/>ein Wellness-Wochenende im Schwarzwald.</p>
-            <p class="para" id="p3">Mit Sauna, Pool und Zeit zum Abschalten.<br/>Und wenn wir Lust haben, auch ein bisschen Wandern<br/>mit schöner Aussicht.</p>
-            <p class="para" id="p4">Zwei Nächte. Zwei Personen.<br/>Ein Wochenende nur für uns.</p>
+        <div class="cardBody" id="cardBody">
+          <div class="textStack" id="textStack">
+            <!-- ✅ UPDATED TEXT -->
+            <p class="para" id="p1">Ich weiß, wie anstrengend dein Alltag oft ist und dass dabei Erholung manchmal einfach zu kurz kommt.</p>
+            <p class="para" id="p2">Deshalb schenke ich dir zwei Übernachtungen im Schwarzwald, damit wir gemeinsam mal rauskommen und uns eine kleine Auszeit nehmen können.</p>
+            <p class="para" id="p3">Wir können wandern gehen, die Gegend genießen und wenn wir Lust haben auch in die Therme oder in den Pool gehen und einfach entspannen.</p>
+            <p class="para" id="p4">Ohne festen Plan, ohne Druck, einfach Zeit für uns und ein Wochenende zum Abschalten.</p>
 
-            <!-- Signature line (badgers slide in on final stage and stop next to the text) -->
             <div class="signature" id="sig">
               <span class="sigText">Dein Chrislibär</span>
               <span class="badgersInline" aria-hidden="true">🦡🦡</span>
@@ -336,18 +396,20 @@
 
   <script>
     // ---------- state machine ----------
-    // 0 closed, 1 door open+card out, 2 p1, 3 p2, 4 p3, 5 p4+sig + confetti + badgers-in
     let state = 0;
 
     const hint = document.getElementById('hint');
     const card = document.getElementById('card');
     const tapArea = document.getElementById('tapArea');
+    const wrap = document.querySelector('.doorWrap');
 
     const p1 = document.getElementById('p1');
     const p2 = document.getElementById('p2');
     const p3 = document.getElementById('p3');
     const p4 = document.getElementById('p4');
     const sig = document.getElementById('sig');
+
+    const cardBody = document.getElementById('cardBody');
 
     function setHint(){
       const h = [
@@ -366,9 +428,28 @@
       p2.classList.toggle('show', state >= 3);
       p3.classList.toggle('show', state >= 4);
       p4.classList.toggle('show', state >= 5);
-
-      // signature appears only at the end
       sig.classList.toggle('show', state >= 5);
+    }
+
+    // ✅ Dynamic fit: shrink typography/spacings until everything fits
+    function fitCardText(){
+      if (state === 0) return;
+
+      const root = document.documentElement;
+      let fit = 1.0;
+      root.style.setProperty('--fit', fit);
+
+      const minFit = 0.80;
+      const step = 0.02;
+
+      requestAnimationFrame(() => {
+        let guard = 0;
+        while (cardBody.scrollHeight > cardBody.clientHeight + 1 && fit > minFit && guard < 60){
+          fit = Math.max(minFit, +(fit - step).toFixed(2));
+          root.style.setProperty('--fit', fit);
+          guard++;
+        }
+      });
     }
 
     function setState(s){
@@ -377,24 +458,31 @@
       setHint();
       card.setAttribute('aria-hidden', state === 0 ? 'true' : 'false');
 
-      // reset the badger animation when leaving state 5
+      // reset badger animation when leaving state 5
       sig.classList.remove('runBadgers');
 
       if (state === 5) {
-        // trigger confetti + badgers slide-in (once per entry)
         startConfettiBurst();
-        // allow the browser to apply class changes, then run the animation
         requestAnimationFrame(() => sig.classList.add('runBadgers'));
       }
 
       applyTextVisibility();
+      fitCardText();
+    }
+
+    function tapBounce(){
+      wrap.classList.add('tapPop');
+      setTimeout(()=>wrap.classList.remove('tapPop'), 90);
     }
 
     function next(){
+      tapBounce();
       if (state < 5) setState(state + 1);
       else setState(0);
     }
     tapArea.addEventListener('click', next);
+
+    window.addEventListener('resize', () => fitCardText(), {passive:true});
 
     // ---------- snow ----------
     const snow = document.getElementById('snow');
@@ -431,7 +519,7 @@
     }
     drawSnow();
 
-    // ---------- confetti ----------
+    // ---------- confetti (burst) ----------
     const confettiCanvas = document.getElementById('confetti');
     const cctx = confettiCanvas.getContext('2d');
     let cw=0, ch=0;
@@ -448,19 +536,19 @@
     function rand(min,max){ return min + Math.random()*(max-min); }
 
     function startConfettiBurst(){
-      confettiPieces = Array.from({length: 220}, () => ({
+      confettiPieces = Array.from({length: 140}, () => ({
         x: rand(0, cw),
-        y: rand(-ch*0.2, 0),
-        w: rand(6, 14) * devicePixelRatio,
-        h: rand(4, 10) * devicePixelRatio,
-        vx: rand(-2.2, 2.2) * devicePixelRatio,
-        vy: rand(2.2, 6.2) * devicePixelRatio,
+        y: rand(-ch*0.15, 0),
+        w: rand(6, 12) * devicePixelRatio,
+        h: rand(4, 9) * devicePixelRatio,
+        vx: rand(-2.0, 2.0) * devicePixelRatio,
+        vy: rand(2.4, 5.8) * devicePixelRatio,
         rot: rand(0, Math.PI*2),
-        vr: rand(-0.15, 0.15),
-        life: rand(120, 220)
+        vr: rand(-0.12, 0.12),
+        life: rand(60, 110)
       }));
       confettiActive = true;
-      setTimeout(() => { confettiActive = false; }, 5200);
+      setTimeout(() => { confettiActive = false; }, 2000);
     }
 
     function drawConfetti(){
@@ -478,18 +566,8 @@
           p.x += p.vx;
           p.y += p.vy;
           p.rot += p.vr;
-          p.vy += 0.04 * devicePixelRatio;
+          p.vy += 0.035 * devicePixelRatio;
           p.life -= 1;
-
-          if (p.y > ch + 30 || p.life <= 0){
-            p.x = rand(0, cw);
-            p.y = rand(-ch*0.2, 0);
-            p.vx = rand(-2.2, 2.2) * devicePixelRatio;
-            p.vy = rand(2.2, 6.2) * devicePixelRatio;
-            p.rot = rand(0, Math.PI*2);
-            p.vr = rand(-0.15, 0.15);
-            p.life = rand(120, 220);
-          }
         }
       }
       requestAnimationFrame(drawConfetti);
